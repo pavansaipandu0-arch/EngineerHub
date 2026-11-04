@@ -31,7 +31,7 @@ EngineerHub is a responsive engineering collaboration platform for students and 
    npm run dev
    ```
 
-   The frontend runs at `http://localhost:5173`; the public landing page is at `/`, registration and sign-in are at `/register` and `/login`, and the protected workspace is at `/workspace`. The API listens on `http://localhost:4000`.
+   The frontend runs at `http://localhost:5174`; the public landing page is at `/`, registration and sign-in are at `/register` and `/login`, and signed-in students are directed to `/student-dashboard`. The API listens on `http://localhost:4000`.
 
 The API starts its HTTP listener immediately and attempts the MongoDB connection in the background. `GET /api/health` reports the connection state and returns HTTP 503 until MongoDB is ready; the server retries an initial connection failure every five seconds. API routes that require persisted data return HTTP 503 while the database is unavailable.
 
@@ -45,7 +45,7 @@ For Netlify production builds, set `VITE_API_URL` to the real HTTPS API URL endi
 
 - Account registration, sign-in, session lookup, and sign-out.
 - Email verification, verification-link resend, forgot-password, and single-use password reset flows.
-- Passwords hashed with bcrypt; short-lived access JWTs and rotating random refresh tokens are held in `HttpOnly`, `SameSite=Strict` cookies. Refresh tokens are stored only as SHA-256 hashes in the session collection.
+- Passwords hashed with bcrypt; short-lived access JWTs and rotating random refresh tokens are held in `HttpOnly` cookies. Cookies use `SameSite=Lax` in local development and `SameSite=None; Secure` in production. Refresh tokens are stored only as SHA-256 hashes in the session collection.
 - Authenticated members can list and revoke sessions; password resets and account suspension revoke all existing sessions.
 - Registration validates password confirmation, strength, email, engineering branch, account type, and optional organization. Student/Engineer/Employer are profile types, never authorization roles.
 - Administrators can suspend or restore verified accounts. Suspended and unverified accounts cannot authenticate; the public registration API never assigns admin privileges.

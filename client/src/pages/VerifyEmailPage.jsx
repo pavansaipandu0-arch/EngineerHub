@@ -4,6 +4,7 @@ import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { Button, Input, Tooltip } from '../components/ui.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useTheme } from '../context/ThemeContext.jsx';
+import { getUserHomePath } from '../utils/authRouting.js';
 
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
@@ -42,7 +43,8 @@ export default function VerifyEmailPage() {
     };
   }, [authLoading, token, user, verifyEmail]);
 
-  if (user && status === 'verified') return <Navigate to="/workspace" replace />;
+  if (user && status === 'verified')
+    return <Navigate to={getUserHomePath(user)} replace />;
   if (authLoading)
     return (
       <div className="grid min-h-screen place-items-center">

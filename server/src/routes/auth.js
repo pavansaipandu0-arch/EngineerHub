@@ -33,10 +33,17 @@ const emailLimiter = rateLimit({
   legacyHeaders: false,
   message: { message: 'Too many email requests. Please wait before trying again.' },
 });
+const verificationResendLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 8,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { message: 'Too many email requests. Please wait before trying again.' },
+});
 const accessCookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   path: '/',
   maxAge: 15 * 60 * 1000,
 };
@@ -226,7 +233,7 @@ router.post('/email/verify', emailLimiter, async (req, res, next) => {
   }
 });
 
-router.post('/email/verification/resend', emailLimiter, async (req, res, next) => {
+router.post('/email/verification/resend', verificationResendLimiter, async (req, res, next) => {
   try {
     const email = normalizeEmail(req.body?.email);
     if (!isValidEmail(email))

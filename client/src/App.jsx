@@ -16,12 +16,17 @@ import ResourcesPage from './pages/ResourcesPage.jsx';
 import { EngineerDirectoryPage, NotificationsPage } from './pages/PeopleNotificationsPage.jsx';
 import AdminModerationPage from './pages/AdminModerationPage.jsx';
 import EngineeringToolsPage from './pages/EngineeringToolsPage.jsx';
+import { getUserHomePath, isStudentUser } from './utils/authRouting.js';
 
-function ProtectedRoute({ children, adminOnly = false }) {
+function ProtectedRoute({ children, adminOnly = false, studentOnly = false }) {
   const { user, loading } = useAuth();
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
-  if (adminOnly && user.role !== 'admin') return <Navigate to="/workspace" replace />;
+  if (adminOnly && user.role !== 'admin')
+    return <Navigate to={getUserHomePath(user)} replace />;
+  if (studentOnly && !isStudentUser(user)) {
+    return <Navigate to={getUserHomePath(user)} replace />;
+  }
   return children;
 }
 
@@ -38,6 +43,14 @@ export default function App() {
         path="/workspace"
         element={
           <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/student-dashboard"
+        element={
+          <ProtectedRoute studentOnly>
             <Dashboard />
           </ProtectedRoute>
         }

@@ -17,6 +17,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Input, Select, Tooltip } from '../components/ui.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useTheme } from '../context/ThemeContext.jsx';
+import { getUserHomePath } from '../utils/authRouting.js';
 
 const branches = [
   'Aerospace',
@@ -47,6 +48,7 @@ export default function AuthPage() {
   const navigate = useNavigate();
   const {
     user,
+    authError,
     loading: authLoading,
     signIn,
     signUp,
@@ -80,7 +82,8 @@ export default function AuthPage() {
       </div>
     );
   }
-  if (user && !isForgotPassword && !isResetPassword) return <Navigate to="/workspace" replace />;
+  if (user && !isForgotPassword && !isResetPassword)
+    return <Navigate to={getUserHomePath(user)} replace />;
 
   function update(event) {
     setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
@@ -111,8 +114,8 @@ export default function AuthPage() {
         });
         setNotice(result.message);
       } else {
-        await signIn({ email: form.email, password: form.password });
-        navigate('/workspace');
+        const signedInUser = await signIn({ email: form.email, password: form.password });
+        navigate(getUserHomePath(signedInUser), { replace: true });
       }
     } catch (requestError) {
       if (requestError.response?.data?.code === 'VERIFICATION_EMAIL_FAILED') {
@@ -370,6 +373,11 @@ export default function AuthPage() {
             {error && (
               <div className="form-error" role="alert">
                 {error}
+              </div>
+            )}
+            {!error && pathname === '/login' && authError && (
+              <div className="form-error" role="alert">
+                {authError}
               </div>
             )}
             {notice && (

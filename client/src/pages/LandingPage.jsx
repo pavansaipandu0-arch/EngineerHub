@@ -31,6 +31,7 @@ import {
 import api from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useTheme } from '../context/ThemeContext.jsx';
+import { getUserHomePath } from '../utils/authRouting.js';
 import { Badge, Button, ErrorState, LoadingSkeleton, Tooltip } from '../components/ui.jsx';
 
 const branches = [
@@ -201,7 +202,7 @@ function LandingNavigation({ user }) {
           </a>
           <div className="landing-nav-actions">
             {user ? (
-              <Link className="landing-nav-signin" onClick={closeMenu} to="/workspace">
+              <Link className="landing-nav-signin" onClick={closeMenu} to={getUserHomePath(user)}>
                 Open workspace
               </Link>
             ) : (
@@ -362,8 +363,8 @@ export default function LandingPage() {
     };
   }, []);
 
-  const signupTarget = user ? '/workspace' : '/register';
-  const exploreTarget = user ? '/workspace' : '/login';
+  const signupTarget = user ? getUserHomePath(user) : '/register';
+  const exploreTarget = user ? getUserHomePath(user) : '/login';
 
   return (
     <div className="landing-page">
@@ -653,7 +654,7 @@ export default function LandingPage() {
                 <h2>Your account</h2>
                 <Link to="/login">Sign in</Link>
                 <Link to="/register">Create account</Link>
-                <Link to={user ? '/workspace' : '/login'}>Workspace</Link>
+                <Link to={user ? getUserHomePath(user) : '/login'}>Workspace</Link>
                 <a href="#faq">FAQs</a>
               </div>
             </div>

@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { getAccountLabel } from '../utils/authRouting.js';
 import { useTheme } from '../context/ThemeContext.jsx';
 import {
   Badge,
@@ -637,7 +638,7 @@ function AdminPanel({ features, onUpdated }) {
   );
 }
 
-function DashboardInsights({ data, loading, error, onRetry }) {
+function DashboardInsights({ data, loading, error, onRetry, user }) {
   if (loading) {
     return (
       <section className="workspace-insights" aria-label="Personalized workspace data">
@@ -672,6 +673,9 @@ function DashboardInsights({ data, loading, error, onRetry }) {
     },
     { label: 'Edit your profile', to: '/profile', icon: Activity },
   ].filter(Boolean);
+  const profile = data.profile;
+  const branch = profile?.branch || data.user?.branch || user?.branch;
+  const organization = profile?.organization || data.user?.organization || user?.organization;
 
   return (
     <section className="workspace-insights" aria-label="Your engineering dashboard">
@@ -685,6 +689,34 @@ function DashboardInsights({ data, loading, error, onRetry }) {
         </div>
         <Link className="text-link" to="/profile">
           Complete your profile
+        </Link>
+      </div>
+      <div className="profile-summary-card">
+        <div className="profile-photo-wrap">
+          {profile?.photoUrl ? (
+            <img
+              alt={`${user?.name || data.user?.name} profile`}
+              className="profile-photo"
+              src={profile.photoUrl}
+            />
+          ) : (
+            <div className="profile-photo profile-photo-placeholder">
+              {(user?.name || data.user?.name)?.charAt(0)?.toUpperCase()}
+            </div>
+          )}
+        </div>
+        <div className="profile-summary">
+          <h2>{user?.name || data.user?.name}</h2>
+          <p>{profile?.headline || `${getAccountLabel(user)} · ${branch || 'Engineering'}`}</p>
+          <div className="profile-meta">
+            {user?.email && <span>{user.email}</span>}
+            {branch && <span>{branch} engineering</span>}
+            {organization && <span>{organization}</span>}
+            {profile?.visibility && <span>{profile.visibility} profile</span>}
+          </div>
+        </div>
+        <Link className="ui-button ui-button-secondary ui-button-sm" to="/profile">
+          Edit profile
         </Link>
       </div>
       <div className="quick-actions">
@@ -1077,7 +1109,7 @@ export default function Dashboard({ initialAdmin = false }) {
             <div className="user-avatar">{user.name.charAt(0).toUpperCase()}</div>
             <div className="user-info">
               <strong>{user.name}</strong>
-              <small>{user.role === 'admin' ? 'Administrator' : 'Member'}</small>
+              <small>{getAccountLabel(user)}</small>
             </div>
             <Tooltip label="Sign out">
               <Button
@@ -1211,7 +1243,7 @@ export default function Dashboard({ initialAdmin = false }) {
                 </span>
               </div>
               <div className="metric-role">
-                {user.role === 'admin' ? 'Administrator' : 'Member'}
+                {getAccountLabel(user)}
               </div>
               <div className="metric-foot">
                 <span className="metric-trend">
@@ -1242,6 +1274,7 @@ export default function Dashboard({ initialAdmin = false }) {
             error={dashboardError}
             loading={dashboardLoading}
             onRetry={loadDashboard}
+            user={user}
           />
 
           <section className="modules-section" id="modules">

@@ -28,6 +28,7 @@ import api from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useTheme } from '../context/ThemeContext.jsx';
 import { Button, EmptyState, ErrorState, LoadingSkeleton, useToast } from './ui.jsx';
+import { getAccountLabel, getUserHomePath } from '../utils/authRouting.js';
 
 const moduleLinks = [
   { key: 'engineer-profiles', label: 'My profile', to: '/profile', icon: UserRound },
@@ -136,7 +137,7 @@ export default function WorkspaceLayout() {
       .map((feature) => feature.key),
   );
   const navigation = [
-    { label: 'Overview', to: '/workspace', icon: Gauge },
+    { label: 'Overview', to: getUserHomePath(user), icon: Gauge },
     ...moduleLinks.filter((item) => visibleKeys.has(item.key)),
     { label: 'Active sessions', to: '/sessions', icon: ShieldCheck },
   ];
@@ -172,7 +173,7 @@ export default function WorkspaceLayout() {
           {navigation.map(({ label, to, icon: Icon }) => (
             <NavLink
               className={({ isActive }) => `side-link ${isActive ? 'active' : ''}`}
-              end={to === '/workspace'}
+              end={to === getUserHomePath(user)}
               key={to}
               onClick={() => setMenuOpen(false)}
               to={to}
@@ -200,7 +201,7 @@ export default function WorkspaceLayout() {
             <div className="user-avatar">{user.name.charAt(0).toUpperCase()}</div>
             <div className="user-info">
               <strong>{user.name}</strong>
-              <small>{user.role === 'admin' ? 'Administrator' : user.userType}</small>
+              <small>{getAccountLabel(user)}</small>
             </div>
             <Button
               aria-label="Sign out"
@@ -237,7 +238,7 @@ export default function WorkspaceLayout() {
               <Menu size={20} />
             </button>
             <div className="breadcrumb">
-              <NavLink to="/workspace">Workspace</NavLink>
+              <NavLink to={getUserHomePath(user)}>Workspace</NavLink>
               <span>/</span>
               <strong>EngineerHub</strong>
             </div>

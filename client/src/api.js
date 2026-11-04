@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { isValidApiResponse } from './utils/apiResponse.js';
 
+export const SESSION_EXPIRED_EVENT = 'engineerhub:session-expired';
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
   withCredentials: true,
@@ -15,6 +17,12 @@ api.interceptors.request.use((request) => {
 });
 
 let refreshRequest;
+
+function notifySessionExpired() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
+  }
+}
 
 api.interceptors.response.use(
   (response) => {
@@ -48,6 +56,7 @@ api.interceptors.response.use(
       await refreshRequest;
       return await api(request);
     } catch (refreshError) {
+      if (refreshError.response?.status === 401) notifySessionExpired();
       return Promise.reject(refreshError);
     } finally {
       refreshRequest = undefined;

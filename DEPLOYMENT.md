@@ -9,7 +9,7 @@ Use a static frontend origin and API origin on the **same registrable domain**, 
 - Frontend: `https://app.example.com`
 - API: `https://api.example.com`
 
-The authentication cookies are `Secure`, `HttpOnly`, and `SameSite=Strict` in production. Hosting the frontend and API on unrelated domains can cause browsers to reject or omit authentication cookies. Provision HTTPS for both domains and keep the API private to the frontend where practical.
+The authentication cookies are `Secure`, `HttpOnly`, and `SameSite=None` in production so browsers can send them when the frontend and API use different origins. In local development, cookies use `SameSite=Lax` and are not `Secure`. Provision HTTPS for both production domains, keep credentialed CORS restricted to exact frontend origins, and keep the API private to the frontend where practical.
 
 ## Pre-deployment checklist
 
